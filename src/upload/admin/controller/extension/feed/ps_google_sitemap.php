@@ -245,7 +245,7 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
     }
     private function _validateRobotsTxt($testUserAgent, $urls)
     {
-        $results = [];
+        $results = array();
 
         // Path to robots.txt
         $robotsTxt = dirname(DIR_SYSTEM) . '/robots.txt';
@@ -269,7 +269,7 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
             // Variables to track user-agent and blocking status
             $userAgent = null;
             $isBlocked = false;
-            $disallowedPaths = [];
+            $disallowedPaths = array();
 
             // Check each line in robots.txt
             foreach ($lines as $line) {
@@ -337,7 +337,7 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
     {
         $this->load->language('extension/feed/ps_google_sitemap');
 
-        $json = [];
+        $json = array();
 
         if (!$this->user->hasPermission('modify', 'extension/feed/ps_google_sitemap')) {
             $json['error'] = $this->language->get('error_permission');
@@ -402,7 +402,7 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
 
         $languages = $this->model_localisation_language->getLanguages();
 
-        $rules = [];
+        $rules = array();
 
         foreach ($languages as $language) {
             $canAddRule = true;
