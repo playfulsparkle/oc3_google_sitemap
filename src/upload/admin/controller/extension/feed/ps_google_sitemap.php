@@ -202,6 +202,8 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
             'SeznamBot' => 'SeznamBot',
         );
 
+        $data['config_seo_url'] = $this->config->get('config_seo_url');
+
         $data['text_contact'] = sprintf($this->language->get('text_contact'), self::EXTENSION_EMAIL, self::EXTENSION_EMAIL, self::EXTENSION_DOC);
 
         $data['header'] = $this->load->controller('common/header');
@@ -250,13 +252,16 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
         // Path to robots.txt
         $robotsTxt = dirname(DIR_SYSTEM) . '/robots.txt';
 
-        // Read the robots.txt file lines
-        $lines = file($robotsTxt);
+        if (is_readable($robotsTxt)) {
+            $lines = file($robotsTxt); // Read the robots.txt file lines
+        } else {
+            $lines = false;
+        }
 
         // If the file is not readable, assume no URLs are blocked
         if (false === $lines) {
             foreach ($urls as $url) {
-                $results[$url] = false; // No blocking when no robots.txt is found
+                $results[$url] = 'text_allowed'; // No blocking when no robots.txt is found
             }
             return $results;
         }
@@ -360,7 +365,6 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
         $store_url = HTTP_CATALOG;
 
         if (!$json) {
-
             $feed_seo_urls = array();
 
             $languages = $this->model_localisation_language->getLanguages();
@@ -369,8 +373,10 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
                 $feed_seo_urls[] = rtrim($store_url, '/') . '/index.php?route=extension/feed/ps_google_sitemap&language=' . $language['code'];
             }
 
-            foreach ($languages as $language) {
-                $feed_seo_urls[] = rtrim($store_url, '/') . '/' . $language['code'] . '/sitemap.xml';
+            if ($this->config->get('config_seo_url')) {
+                foreach ($languages as $language) {
+                    $feed_seo_urls[] = rtrim($store_url, '/') . '/' . $language['code'] . '/sitemap.xml';
+                }
             }
 
             $results = array();
@@ -394,8 +400,18 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
     {
         $htaccess_filename = dirname(DIR_SYSTEM) . '/.htaccess';
 
-        if (false === $lines = file($htaccess_filename)) {
+        if (!is_readable($htaccess_filename)) {
             return false;
+        }
+
+        $lines = file($htaccess_filename);
+
+        if (false === $lines) {
+            return false;
+        }
+
+        if (empty($lines)) {
+            return true;
         }
 
         $this->load->model('localisation/language');
@@ -426,9 +442,9 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
         foreach ($lines as $line) {
             $new_content .= $line;
 
-            if (trim($line) === 'RewriteEngine On' && !$foundRewriteEngine) {
+            if (!$foundRewriteEngine && strtolower(trim($line)) === 'rewriteengine on') {
                 $foundRewriteEngine = true;
-
+                $new_content .= PHP_EOL . PHP_EOL;
                 foreach ($rules as $rule) {
                     $new_content .= $rule . PHP_EOL;
                 }
