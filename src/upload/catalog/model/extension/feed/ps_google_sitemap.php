@@ -22,11 +22,25 @@ class ModelExtensionFeedPSGoogleSitemap extends Model
         return $product_data;
     }
 
-    public function getProductImages($product_id)
+    public function getProductImages($data, $max_images = 10)
     {
-        $query = $this->db->query("SELECT `image` FROM `" . DB_PREFIX . "product_image` WHERE `product_id` = '" . (int) $product_id . "' LIMIT 10");
+        $query = $this->db->query("SELECT `product_id`, `image` FROM `" . DB_PREFIX . "product_image` WHERE `product_id` IN ('" . implode("','", $data) . "')");
 
-        return $query->rows;
+        $result = array();
+
+        foreach ($query->rows as $row) {
+            $product_id = (int) $row['product_id'];
+
+            if (!isset($result[$product_id])) {
+                $result[$product_id] = array();
+            }
+
+            if (count($result[$product_id]) < $max_images) {
+                $result[$product_id][] = $row;
+            }
+        }
+
+        return $result;
     }
 
 

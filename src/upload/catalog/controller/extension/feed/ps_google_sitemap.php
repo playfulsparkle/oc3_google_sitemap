@@ -60,6 +60,15 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
             // Fetch products in chunks to handle large datasets
             $products = $this->model_extension_feed_ps_google_sitemap->getProducts();
 
+            if ($sitemap_product_images && $sitemap_max_product_images > 1) {
+                $product_images = $this->model_extension_feed_ps_google_sitemap->getProductImages(
+                    array_column($products, 'product_id'),
+                    $sitemap_max_product_images
+                );
+            } else {
+                $product_images = array();
+            }
+
             foreach ($products as $product) {
                 $xml->startElement('url');
                 $product_url = $this->url->link('product/product', 'product_id=' . $product['product_id']);
@@ -75,11 +84,8 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
                         $xml->endElement();
                     }
 
-                    if ($sitemap_max_product_images > 1) {
-                        $product_images = $this->model_extension_feed_ps_google_sitemap->getProductImages($product['product_id']);
-                        $product_images = array_slice($product_images, 0, $sitemap_max_product_images - 1);
-
-                        foreach ($product_images as $product_image) {
+                    if (isset($product_images[(int) $product['product_id']])) {
+                        foreach ($product_images[(int) $product['product_id']] as $product_image) {
                             $resized_image = !empty($product_image['image']) ? $this->model_tool_image->resize($product_image['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_popup_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_popup_height')) : null;
 
                             if ($resized_image) {
@@ -176,6 +182,7 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
             $category_url = $this->url->link('product/category', 'path=' . implode('_', $category_path));
 
             $xml->writeElement('loc', str_replace('&amp;', '&', $category_url));
+            
             $xml->writeElement('lastmod', date('Y-m-d\TH:i:sP', strtotime($category['date_modified'])));
 
             if ($sitemap_category_images) {
