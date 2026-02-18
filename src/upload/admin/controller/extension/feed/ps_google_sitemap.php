@@ -235,7 +235,15 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
         $this->load->model('setting/setting');
 
         $data = array(
+            'feed_ps_google_sitemap_category_images' => 0,
+            'feed_ps_google_sitemap_category' => 1,
+            'feed_ps_google_sitemap_information' => 1,
+            'feed_ps_google_sitemap_manufacturer_images' => 0,
+            'feed_ps_google_sitemap_manufacturer' => 1,
             'feed_ps_google_sitemap_max_product_images' => 1,
+            'feed_ps_google_sitemap_product_images' => 1,
+            'feed_ps_google_sitemap_product' => 1,
+            'feed_ps_google_sitemap_status' => 0,
         );
 
         $this->model_setting_setting->editSetting('feed_ps_google_sitemap', $data);
