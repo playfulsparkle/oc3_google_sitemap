@@ -30,31 +30,30 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
 
         $this->load->model('setting/setting');
 
+        if (isset($this->request->get['store_id'])) {
+            $store_id = (int) $this->request->get['store_id'];
+        } else {
+            $store_id = 0;
+        }
+
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->model_setting_setting->editSetting('feed_ps_google_sitemap', $this->request->post, $this->request->get['store_id']);
+            $this->model_setting_setting->editSetting('feed_ps_google_sitemap', $this->request->post, $store_id);
 
             $this->session->data['success'] = $this->language->get('text_success');
 
             $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=feed', true));
         }
 
-        if (isset($this->error['warning'])) {
-            $data['error_warning'] = $this->error['warning'];
-        } else {
-            $data['error_warning'] = '';
-        }
+		if (isset($this->error['warning'])) {
+			$data['error_warning'] = $this->error['warning'];
+		} else {
+			$data['error_warning'] = '';
+		}
 
         if (isset($this->error['input_max_product_images'])) {
             $data['error_input_max_product_images'] = $this->error['input_max_product_images'];
         } else {
             $data['error_input_max_product_images'] = '';
-        }
-
-
-        if (isset($this->request->get['store_id'])) {
-            $store_id = (int) $this->request->get['store_id'];
-        } else {
-            $store_id = 0;
         }
 
 
@@ -357,12 +356,6 @@ class ControllerExtensionFeedPSGoogleSitemap extends Controller
         }
 
         $this->load->model('localisation/language');
-
-        if (isset($this->request->get['store_id'])) {
-            $store_id = (int) $this->request->get['store_id'];
-        } else {
-            $store_id = 0;
-        }
 
         if (isset($this->request->get['user_agent'])) {
             $user_agent = $this->request->get['user_agent'];
